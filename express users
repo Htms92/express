@@ -48,3 +48,18 @@ Query OK, 0 rows affected (0.04 sec)
 
 mysql> SELECT * FROM USERS;
 Empty set (0.01 sec)
+
+app.post('/api/users', (req, res) => {
+  const { firstname, lastname, email } = req.body;
+  connection.query(
+    'INSERT INTO users (firstname, lastname, email ) VALUES (?, ?, ?, ?, ?)',
+    [firstname, lastname, email ],
+    (err, result) => {
+      if (err) {
+        res.status(500).send('Error saving the users');
+      } else {
+        res.status(200).send('Users successfully saved');
+      }
+    }
+  );
+});
