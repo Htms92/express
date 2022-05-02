@@ -1,1 +1,66 @@
 
+mysql> SHOW databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| movies             |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sys                |
+| wcs_steam          |
+| wild_db_quest      |
+| wilder             |
+| world              |
++--------------------+
+10 rows in set (0.01 sec)
+
+mysql> CREATE database users;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SHOW databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| movies             |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sys                |
+| users              |
+| wcs_steam          |
+| wild_db_quest      |
+| wilder             |
+| world              |
++--------------------+
+11 rows in set (0.00 sec)
+
+mysql> USE users;
+Database changed
+mysql> CREATE TABLE `users`.`users` (
+    -> `id` INT NOT NULL AUTO_INCREMENT,
+    -> `firstname` VARCHAR(100) NOT NULL,
+    -> `lastname` VARCHAR(100) NOT NULL,
+    -> `email` VARCHAR(100) NOT NULL,
+    ->  PRIMARY KEY (`id`));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> SELECT * FROM USERS;
+Empty set (0.01 sec)
+
+app.post('/api/users', (req, res) => {
+  const { firstname, lastname, email } = req.body;
+  connection.query(
+    'INSERT INTO users (firstname, lastname, email ) VALUES (?, ?, ?, ?, ?)',
+    [firstname, lastname, email ],
+    (err, result) => {
+      if (err) {
+        res.status(500).send('Error saving the users');
+      } else {
+        res.status(200).send('Users successfully saved');
+      }
+    }
+  );
+});
