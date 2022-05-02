@@ -64,3 +64,24 @@ app.post('/api/users', (req, res) => {
     }
   );
 });
+
+app.put('/api/users/:userId', (req, res) => {
+  // On récupère l'id depuis les paramètres de la requête
+  const { userId } = req.params;
+  // On récupère les nouvelles valeurs depuis le corps de notre requête
+  const userPropsToUpdate = req.body;
+  // On envoie une requête UPDATE à notre BdD
+  connection.query(
+    'UPDATE users SET ? WHERE id = ?',
+    [userPropsToUpdate, userId],
+    (err) => {
+      // Une fois la requête exécutée, on peut répondre à la requête HTTP
+      if (err) {
+        console.log(err);
+        res.status(500).send('Error updating a user');
+      } else {
+        res.status(200).send('User updated successfully 🎉');
+      }
+    }
+  );
+});
