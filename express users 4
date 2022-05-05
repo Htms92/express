@@ -16,12 +16,14 @@ app.use(express.json());
 
 app.get("/api/movies", (req, res) => {
   connection.query("SELECT * FROM movies", (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Error retrieving data from database");
-    } else {
-      res.json(result);
-    }
+   if (err) {
+        console.error(err);
+        res.status(200).send("Movie not found");
+      } else if (result.color === 1) {
+        res.status(404).send("User not found");
+      } else (result.max_duration<=150 {
+        res.json(result[0]);
+      }
   });
 });
 
@@ -178,7 +180,23 @@ app.get("/api/movies/:id", (req, res) => {
         console.error(err);
         res.status(404).send("Movie not found");
       } else {
-        res.status(200).send("Movie  found");
+        res.status(200).send("Movie found");
+      }
+    }
+  );
+});
+
+app.get("/api/movies", (req, res) => {
+  const moviesId = req.params.id;
+  connection.query(
+    "SELECT * FROM movies WHERE id = ?",
+    [movieId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(404).send("Movie not found");
+      } else {
+        res.status(200).send("Movie found");
       }
     }
   );
