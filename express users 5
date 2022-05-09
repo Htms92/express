@@ -1,1 +1,18 @@
 
+app.post('/api/movies', (req, res) => {
+  const { id, title, year, director, color, duration } = req.body;
+  connection.query(
+    'INSERT INTO users (id, title, year, director, color, duration) VALUES (?, ?, ?, ?, ?, ?)',
+    [id, title, year, director, color, duration],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error saving the user');
+      } else {
+        const id = result.insertId;
+        const createdMovie = { id, title, year, director, color, duration };
+        res.status(201).json(createdMovie);
+      }
+    }
+  );
+});
