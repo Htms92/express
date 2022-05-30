@@ -1,24 +1,45 @@
 app.post('/api/users', (req, res) => {
-  const { firstname, lastname, email, city, language } = req.body;
-  const db = connection.promise();
-  let validationErrors = null;
-  db.query('SELECT * FROM users WHERE email = ?', [email])
-    .then(([result]) => {
-      if (result[0]) return Promise.reject('DUPLICATE_EMAIL');
-      validationErrors = Joi.object({
-        email: Joi.string().email().max(255).required(),
-        firstname: Joi.string().max(255).required(),
-        lastname: Joi.string().max(255).required(),
-        city: Joi.string().max(255).required(),
-        language: Joi.string().max(255).required()
-      }).validate({ firstname, lastname, email }, { abortEarly: false }).error;
-      if (validationErrors) return Promise.reject('INVALID_DATA');
-      return db.query(
-        'INSERT INTO users (firstname, lastname, email) VALUES (?, ?, ?)',
-        [firstname, lastname, email]
-      );
-    })
-    .then(([{ insertId }]) => {
+  const argon2 = require('argon2');
+
+const hashingOptions = {
+  type: argon2.argon2id,
+  memoryCost: 2 ** 16,
+  timeCost: 5,
+  parallelism: 1
+};
+
+const hashPassword = (plainPassword) => {
+  return argon2.hash(plainPassword, hashingOptions);
+};
+
+const verifyPassword = (plainPassword, hashedPassword) => {
+  return argon2.verify(hashedPassword, plainPassword, hashingOptions);
+};
+
+module.exports = {
+  // ...other exports...
+  hashPassword,
+  verifyPassword,
+};
+});
+
+
+CREATE TABLE `users` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `firstname` varchar(255) NOT NULL,
+    `lastname` varchar(255) NOT NULL,
+    `email` varchar(255) UNIQUE NOT NULL,
+    `city` varchar(255) DEFAULT NULL,
+    `language` varchar(255) DEFAULT NULL,
+    `hashedPassword` varchar(255) NOT NULL,
+    PRIMARY KEY (`id`)
+  ) ENGINE = InnoDB AUTO_INCREMENT = 7 DEFAULT CHARSET = utf8;
+
+INSERT INTO
+  `users`
+  app.post('/api/auth/checkCredentials', (req, res) => {
+
+   .then(([{ insertId }]) => {
       res.status(201).json({ id: insertId, firstname, lastname, email });
     })
     .catch((err) => {
@@ -29,4 +50,3 @@ app.post('/api/users', (req, res) => {
         res.status(422).json({ validationErrors });
       else res.status(500).send('Error saving the user');
     });
-});
