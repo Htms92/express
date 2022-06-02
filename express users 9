@@ -2,7 +2,7 @@ const authRouter = require('express').Router();
 const User = require('../models/user');
 const { calculateToken } = require('../helpers/users');
 
-authRouter.post('/checkCredentials', (req, res) => {
+authRouter.post('/sessions', (req, res) => {
   const { email, password } = req.body;
   User.findByEmail(email).then((user) => {
     if (!user) res.status(401).send('Invalid credentials');
@@ -11,7 +11,6 @@ authRouter.post('/checkCredentials', (req, res) => {
         (passwordIsCorrect) => {
           if (passwordIsCorrect) {
             const token = calculateToken(email);
-            User.update(user.id, { token: token })
             res.cookie('user_token', token)
             res.send()
           }
@@ -23,3 +22,15 @@ authRouter.post('/checkCredentials', (req, res) => {
 });
 
 module.exports = authRouter;
+
+
+
+const crypto = require('crypto');
+
+const PRIVATE_KEY = "superSecretStringNowoneShouldKnowOrTheCanGenerateTokens"
+
+const calculateToken = (userEmail = "") => {
+    return crypto.createHash('md5').update(userEmail + PRIVATE_KEY).digest("hex");
+}
+
+module.exports = { calculateToken };
